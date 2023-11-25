@@ -1,0 +1,114 @@
+---
+title: "Group Work - Credit Scoring with R"
+subtitle: "SBD2 - Data-driven Visualization and Decision-Making"
+author: "Abdallah Abobaker, Severin Clauss, Dino Hamzic, Lenny Ruprecht"
+date: Dez. 11, 2023
+output:
+    html_document:
+        df_print: paged
+        HTML: default
+        toc: true
+    pdf_document: default
+---
+
+```{r include = FALSE, echo = FALSE}
+# Install libraries needed
+libraries <- c('readr')
+
+lapply(libraries, function(x) if (!(x %in% installed.packages())) {
+  install.packages(x)
+})
+
+lapply(libraries, library, quietly = TRUE, character.only = TRUE)
+
+if (basename(getwd()) != "bfh-sbd2-project") {
+  setwd("./")
+}
+
+# read the dataset
+data_improt <- read_csv('./loan_sample_7.csv')
+loan_data <- data_improt
+```
+Check out on [GitHub](https://github.com/HaKePlan/bfh-sbd2-project)
+
+***
+
+# Exercise 1
+*Using the data set "loan_data.csv", please go through the following tasks:*
+
+## Descriptive analysis
+### Structure
+*Check and report the structure of the data set.*
+
+### Categorical variables
+*How many numeric and how many categorical variables are included in the data? What categorical variable has the most levels in it?*
+
+### Summarize variables
+*Summarize the variables. Discuss the summary statistics obtained.*
+
+### Target variable
+*Check the levels of the target variable by choosing the appropriate visualization. Is the target variable balanced?*
+
+### Distribution of numeric variables
+*Check the distribution of the numeric variables in the data set (include different visual representations).*
+
+## Checking for outliers
+*Investigate whether certain variables contain outliers (hint: what does a box plot show?).*
+
+### Dealing with outliers
+*Elaborate your view on how to proceed in dealing with the outliers and – if necessary take appropriate action.*
+
+## Distribution of numeric features in target
+*Choose the appropriate visualization to investigate the distribution of the numeric features per the two levels of our target feature (i.e. default vs non-default). Discuss the visualizations. Which variables seem relevant in predicting the target feature?*
+
+## categorical variables and target
+*Use a bar plot visualization to investigate the associations between the categorical variables and the target feature.*
+
+## Correlations
+*Visualize the correlations that emerge between the numerical features. Discuss the results. Which variables are highly correlated? Decide whether you keep all variables.*
+
+## Association between loan and income
+*Plot an interactive scatter plot of the association between the loan amount requested and the annual income of the borrower. Discuss the plot. What can you tell about the association?*
+
+## Create a new balanced data set
+*Create a new balanced data set where the two levels of the target variable will be equally represented; Create a bar plot of the newly created target variable. Why is this step necessary?*
+
+***
+
+# Exercise 2
+*Using the new balanced data set:*
+
+## Train and test a logistic classifier
+### Divide the sample
+*Divide the sample into training and testing set using 70% for training the algorithm.*
+
+### Train the classifier
+*Train the classifier and report the coefficients obtained and interpret the results.*
+
+### Plot the ROC
+*Plot the ROC and the Precision/Recall Curve and interpret the results.*
+
+### Confusion matrix
+*Produce the confusion matrix and interpret the results.*
+
+### AUC values
+*Report the AUC values and the overall accuracy and interpret the results.*
+
+***
+
+# Exercise 3
+*Thinking about the pre-processing steps that you carried out before training the logistic classifier:*
+
+## Predictive performance
+*Can you think of a way to improve the predictive performance of your data? What can you do differently? (Hint: Feel free to be creative and discuss any additional step in data collection and/or data pre-processing that you might try so to improve the results)*
+
+***
+
+# Exercise 4
+*Finally, thinking about putting your model into action and basing credit decisions on the prediction that it generates:*
+
+## Challenges while using this model
+*What kind of challenges may a company face if it uses your model in their daily business, in particular in regard to ethical challenges and moral obligations companies have? Please refer to the "common ethical issues in the context the creation of value from data" (see slides week 11) in your answer.*
+
+## Mitigate the issue
+*Can you think of a way how companies can overcome or at least mitigate the issues that you described above?*

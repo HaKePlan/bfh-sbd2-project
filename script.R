@@ -23,3 +23,10 @@ plot(overview)
 
 # we check for missing values
 diagnose(data, 1:17) # diagnose shows us, that there are no missing values so far
+
+
+#####################
+# Exercise 1
+#
+#
+#####################
