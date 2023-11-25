@@ -12,7 +12,7 @@ output:
 
 ```{r include = FALSE, echo = FALSE}
 # Install libraries needed
-libraries <- c('readr')
+libraries <- c('readr', 'dlookr')
 
 lapply(libraries, function(x) if (!(x %in% installed.packages())) {
   install.packages(x)
@@ -39,11 +39,31 @@ Check out on [GitHub](https://github.com/HaKePlan/bfh-sbd2-project)
 ### Structure
 *Check and report the structure of the data set.*
 
+```{r}
+# we start with checking the dimension, structure, head and tail of our dataset
+dim(loan_data) # this shows us the demension of our dataset (40'000 Rows, 17 Cols)
+str(loan_data) # structure of the dataset and its variables
+head(loan_data)
+tail(loan_data)
+
+# we check the overview from dlookr to get a better understanding of the data quality
+overview(loan_data)
+overview <- overview(loan_data)
+plot(overview)
+```
+
 ### Categorical variables
 *How many numeric and how many categorical variables are included in the data? What categorical variable has the most levels in it?*
+```{r}
+
+```
 
 ### Summarize variables
 *Summarize the variables. Discuss the summary statistics obtained.*
+```{r}
+# We check the summary of all variables included.
+summary(loan_data)
+```
 
 ### Target variable
 *Check the levels of the target variable by choosing the appropriate visualization. Is the target variable balanced?*
