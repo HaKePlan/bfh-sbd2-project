@@ -12,7 +12,7 @@ output:
 
 ```{r include = FALSE, echo = FALSE}
 # Install libraries needed
-libraries <- c('readr', 'dlookr')
+libraries <- c('readr', 'dlookr', 'dplyr', 'knitr', 'kableExtra')
 
 lapply(libraries, function(x) if (!(x %in% installed.packages())) {
   install.packages(x)
@@ -40,6 +40,7 @@ Check out on [GitHub](https://github.com/HaKePlan/bfh-sbd2-project)
 *Check and report the structure of the data set.*
 
 ```{r}
+# TODO: wirte some intepretations?
 # we start with checking the dimension, structure, head and tail of our dataset
 dim(loan_data) # this shows us the demension of our dataset (40'000 Rows, 17 Cols)
 str(loan_data) # structure of the dataset and its variables
@@ -54,9 +55,31 @@ plot(overview)
 
 ### Categorical variables
 *How many numeric and how many categorical variables are included in the data? What categorical variable has the most levels in it?*
-```{r}
 
+As we know from [Structure `plot(overview)`](#structure) there are only two data types (character and numeric).
+We guess that the character typed variables are categorical ones, but we need to verify this.
+Thanks to `overview` we also know how many of each type exist, but we also want to show this clearly.
+
+
+```{r}
+# How many numeric and how many categorical?
+overview |>
+  filter(division == 'data type' & value > 0) |>
+  select(metrics, value)
+
+# from plot(overview) we know which are character variables
+# lets check if each character variable is also a classifier
+class_variables <- c('grade', 'home_ownership', 'verification_status', 'purpose', 'application_type')
+
+result <- lapply(class_variables, function(x) loan_data |> distinct(across({{x}})))
+
+knitr::kable(result) |> kable_styling(fixed_thead = TRUE)
 ```
+
+As seen in `kable(result)` the `purpose` variable seems to have the most levels.
+Also, we can clearly see that all character variables are categorical variables.
+With this knowledge, we can say that our dataset consists of only two data types: numeric and categorical
+(represented by character type).
 
 ### Summarize variables
 *Summarize the variables. Discuss the summary statistics obtained.*
