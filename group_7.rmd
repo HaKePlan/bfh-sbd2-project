@@ -84,12 +84,32 @@ With this knowledge, we can say that our dataset consists of only two data types
 ### Summarize variables
 *Summarize the variables. Discuss the summary statistics obtained.*
 ```{r}
-# We check the summary of all variables included.
-summary(loan_data)
+knitr::kable(summary(loan_data)) |> kable_styling(fixed_thead = TRUE)
 ```
+
+1. **loan_amnt**: The loan amount ranges from $1,000 to $40,000, with a mean (average) loan amount of approximately $11,661.
+2. **int_rate**: The interest rate varies from 5.31% to 27.49%, with a mean interest rate of around 12.61%.
+3. **grade**: This is a categorical variable representing the loan grade. The mode is not provided in the summary, but you can see the distribution of different grades.
+4. **home_ownership**: Another categorical variable indicating the type of home ownership. The mode is not provided in the summary.
+5. **annual_inc**: Annual income ranges from $6,600 to $400,000, with an average annual income of approximately $63,369.
+6. **verification_status**: Categorical variable representing the status of income verification.
+7. **purpose**: Categorical variable indicating the purpose of the loan.
+8. **dti (debt-to-income ratio)**: The debt-to-income ratio ranges from 0 to 60.14, with a mean ratio of 18.24.
+9. **open_acc**: The number of open credit lines ranges from 1 to 23, with a mean of approximately 10.3.
+10. **revol_bal (revolving balance)**: The revolving balance on credit accounts ranges from 0 to $78,383, with a mean of approximately $11,946.
+11. **revol_util (revolving utilization rate)**: The revolving utilization rate varies from 0% to 121.40%, with a mean of approximately 52.16%.
+12. **total_acc (total number of credit lines)**: The total number of credit lines ranges from 3 to 57, with a mean of approximately 21.29.
+13. **total_rec_int (total received interest)**: The total received interest on loans ranges from 0 to $8,834.9, with a mean of approximately $1,810.4.
+14. **application_type**: Categorical variable indicating the type of loan application.
+15. **tot_cur_bal (total current balance of all accounts)**: The total current balance across all accounts ranges from 0 to $472,573, with a mean of approximately $99,506.
+16. **total_rev_hi_lim (total revolving credit limit)**: The total revolving credit limit ranges from $300 to $100,000, with a mean of approximately $24,122.
+17. **Status**: Binary variable indicating the loan status, where 0 represents one category and 1 represents another. The mean suggests that approximately 12.85% of loans fall into the category represented by 1.
+
 
 ### Target variable
 *Check the levels of the target variable by choosing the appropriate visualization. Is the target variable balanced?*
+
+
 
 ### Distribution of numeric variables
 *Check the distribution of the numeric variables in the data set (include different visual representations).*
