@@ -1,6 +1,7 @@
 library(readr)
 library(dlookr)
 library(dplyr)
+library(ggplot2)
 
 # load dataset for later analysis
 data_improt <- read_csv('./loan_sample_7.csv')
@@ -43,3 +44,18 @@ result <- lapply(class_variables, function(x) loan_data |> distinct(across({{x}}
 # Summarize the variables. Discuss the summary statistics obtained.
 
 summary(loan_data)
+
+#########
+# Target variable
+# Check the levels of the target variable by choosing the appropriate visualization. Is the target variable balanced?
+
+loan_data <- loan_data |> mutate(Status = as.factor(Status))
+
+table(loan_data$Status)
+
+ggplot(loan_data, aes(x = Status, fill = Status)) +
+  geom_bar() +
+  ylab("Count") +
+  xlab("Status of the loan") +
+  scale_fill_manual(values = c('skyblue', 'brown2'), labels = c("0 (Not Defaulted)", "1 (Defaulted)"))
+

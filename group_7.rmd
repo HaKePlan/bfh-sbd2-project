@@ -12,7 +12,7 @@ output:
 
 ```{r include = FALSE, echo = FALSE}
 # Install libraries needed
-libraries <- c('readr', 'dlookr', 'dplyr', 'knitr', 'kableExtra')
+libraries <- c('readr', 'dlookr', 'dplyr', 'knitr', 'kableExtra', 'ggplot2')
 
 lapply(libraries, function(x) if (!(x %in% installed.packages())) {
   install.packages(x)
@@ -103,13 +103,24 @@ knitr::kable(summary(loan_data)) |> kable_styling(fixed_thead = TRUE)
 14. **application_type**: Categorical variable indicating the type of loan application.
 15. **tot_cur_bal (total current balance of all accounts)**: The total current balance across all accounts ranges from 0 to $472,573, with a mean of approximately $99,506.
 16. **total_rev_hi_lim (total revolving credit limit)**: The total revolving credit limit ranges from $300 to $100,000, with a mean of approximately $24,122.
-17. **Status**: Binary variable indicating the loan status, where 0 represents one category and 1 represents another. The mean suggests that approximately 12.85% of loans fall into the category represented by 1.
+17. **Status**: Binary variable indicating the loan status, where 0 represents the "not defaulted" category and 1 represents "defaulted". The mean suggests that approximately 12.85% of loans fall into the "defaulted" category represented by 1.
 
 
 ### Target variable
 *Check the levels of the target variable by choosing the appropriate visualization. Is the target variable balanced?*
 
+```{r}
+# since Status is still numerical, we need to convert it to an factor type
+loan_data <- loan_data |> mutate(Status = as.factor(Status))
 
+ggplot(loan_data, aes(x = Status, fill = Status)) +
+  geom_bar() +
+  ylab("Count") +
+  xlab("Status of the loan") +
+  scale_fill_manual(values = c('turquoise3', 'tomato'), labels = c("0 (Not Defaulted)", "1 (Defaulted)"))
+```
+
+The data set is **highly imbalanced**.
 
 ### Distribution of numeric variables
 *Check the distribution of the numeric variables in the data set (include different visual representations).*
