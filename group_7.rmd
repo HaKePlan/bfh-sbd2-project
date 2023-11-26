@@ -12,7 +12,7 @@ output:
 
 ```{r include = FALSE, echo = FALSE}
 # Install libraries needed
-libraries <- c('readr', 'dlookr', 'dplyr', 'knitr', 'kableExtra', 'ggplot2')
+libraries <- c('readr', 'dlookr', 'dplyr', 'knitr', 'kableExtra', 'ggplot2', 'tidyr')
 
 lapply(libraries, function(x) if (!(x %in% installed.packages())) {
   install.packages(x)
@@ -125,11 +125,62 @@ The data set is **highly imbalanced**.
 ### Distribution of numeric variables
 *Check the distribution of the numeric variables in the data set (include different visual representations).*
 
+Since `Status` has to be considered a factor and not numerical, we will exclude it from this check:
+
+```{r}
+# Select numeric variables
+numeric_vars <- loan_data %>% select_if(is.numeric)
+
+# Gather the data for plotting
+gathered_data <- gather(numeric_vars, key = "Variable", value = "Value")
+
+# Plot the distribution of numeric variables
+ggplot(gathered_data, aes(x = Value, fill = Variable)) +
+  geom_histogram(show.legend = FALSE) +
+  facet_wrap(~ Variable, scales = "free") +
+  labs(title = "Distribution of Numeric Variables",
+       x = "",
+       y = "") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
 ## Checking for outliers
 *Investigate whether certain variables contain outliers (hint: what does a box plot show?).*
 
+```{r}
+# to gather infromation over the outliers, we need to exclude the character and factor variables
+# Since we did this before, we can just use the prepared variables (numeric_vars and gathered_data)
+
+ggplot(gathered_data, aes(x = Value, fill = Variable)) +
+  geom_boxplot(show.legend = FALSE) +
+  facet_wrap(~ Variable, scales = "free") +
+  labs(title = "Distribution of Numeric Variables",
+       x = "",
+       y = "") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# lets also take a look at the bare numbers with diagonse
+diagnose_outlier(numeric_vars)
+```
+
+The first overview gives us the impression that we need to investigate further into the outliers.
+Therefore, we want to exactly identify where the outliers are problematic and interfere.
+Let's get a comparison between the variables cleaned from outliers and raw:
+
+```{r}
+numeric_vars |>
+  plot_outlier(
+    diagnose_outlier(numeric_vars) |>
+      filter(outliers_ratio >= 0.5) |>
+      select(variables) |>
+      unlist()
+  )
+```
+
 ### Dealing with outliers
-*Elaborate your view on how to proceed in dealing with the outliers and – if necessary take appropriate action.*
+*Elaborate your view on how to proceed in dealing with the outliers and – if necessary, take appropriate action.*
 
 ## Distribution of numeric features in target
 *Choose the appropriate visualization to investigate the distribution of the numeric features per the two levels of our target feature (i.e. default vs non-default). Discuss the visualizations. Which variables seem relevant in predicting the target feature?*
