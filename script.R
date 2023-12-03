@@ -24,6 +24,16 @@ overview(loan_data)
 overview <- overview(loan_data)
 plot(overview)
 
+# lets sort the data a bit
+loan_data <- loan_data |> mutate(Status = as.factor(Status))
+
+numerci_loan <- loan_data[sapply(loan_data, is.numeric)]
+non_numeric_loan <- loan_data[sapply(loan_data, function(x) !is.numeric(x))]
+loan_data <- cbind(numerci_loan, non_numeric_loan)
+
+# let us show the new overview plot
+overview <- overview(loan_data)
+plot(overview)
 
 #########
 # Categorical variables
@@ -50,8 +60,6 @@ summary(loan_data)
 #########
 # Target variable
 # Check the levels of the target variable by choosing the appropriate visualization. Is the target variable balanced?
-
-loan_data <- loan_data |> mutate(Status = as.factor(Status))
 
 table(loan_data$Status)
 
@@ -102,17 +110,38 @@ numeric_vars |> plot_outlier(diagnose_outlier(numeric_vars) |> filter(outliers_r
 # Dealing with outliers
 # Elaborate your view on how to proceed in dealing with the outliers and – if necessary, take appropriate action.
 
-# TODO investigate in how to deal with outliers (week 5)
-# outlier <- function(x) {
-#   quantiles <- quantile(x, c(.05, .95))
-#   x[x < quantiles[1]] <- quantiles[1]
-#   x[x > quantiles[2]] <- quantiles[2]
-#   x
-# }
-#
-# data_new_numeric <- map_df(numeric_vars[,-c(20:24)], outlier)
-# cols <- numeric_vars[,c(20:24)]
-# data_new_numeric <- cbind(data_new_numeric, cols)
-#
-# boxplot(scale(data_new_numeric[,c(1:19)]), use.cols = TRUE)
+# TODO: define outliers as such, here we just assume all outliers as such but we did not verify and explain why
+outlier <- function(x) {
+  quantiles <- quantile(x, c(.05, .95))
+  x[x < quantiles[1]] <- quantiles[1]
+  x[x > quantiles[2]] <- quantiles[2]
+  x
+}
 
+
+
+clean_loan_data <- map_df(loan_data[,-c(11:17)], outlier)
+cols <- loan_data[,c(11:17)]
+clean_loan_data <- cbind(clean_loan_data, cols)
+
+boxplot(scale(clean_loan_data[,c(1:10)]), use.cols = TRUE)
+
+
+#########
+# Distribution of numeric features in target
+# Choose the appropriate visualization to investigate the distribution of the numeric features per the two levels of our target feature (i.e. default vs non-default).
+# Discuss the visualizations. Which variables seem relevant in predicting the target feature?
+
+for (i in 1:length(clean_loan_data[,-c(11:17)])) {
+  print(
+    ggplot(clean_loan_data, aes(y = clean_loan_data[,i], color = Status)) +
+      geom_boxplot() +
+      ylab(names(clean_loan_data[i])) +
+      scale_color_manual(values = c('turquoise3', 'tomato'), labels = c("0 (Not Defaulted)", "1 (Defaulted)")) +
+      theme(
+        axis.title.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank()
+      )
+  )
+}

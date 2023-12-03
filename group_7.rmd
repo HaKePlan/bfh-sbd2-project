@@ -12,7 +12,7 @@ output:
 
 ```{r include = FALSE, echo = FALSE}
 # Install libraries needed
-libraries <- c('readr', 'dlookr', 'dplyr', 'knitr', 'kableExtra', 'ggplot2', 'tidyr')
+libraries <- c('readr', 'dlookr', 'dplyr', 'knitr', 'kableExtra', 'ggplot2', 'tidyr', 'purrr')
 
 lapply(libraries, function(x) if (!(x %in% installed.packages())) {
   install.packages(x)
@@ -52,6 +52,23 @@ overview(loan_data)
 overview <- overview(loan_data)
 plot(overview)
 ```
+
+As we see, the Status is considered numeric and not a factor. Let's change that!
+Also, we want to sort the data set a bit and put all non-numerical variables at the end of the dataset for later use.
+
+```{r}
+loan_data <- loan_data |> mutate(Status = as.factor(Status))
+
+numerci_loan <- loan_data[sapply(loan_data, is.numeric)]
+non_numeric_loan <- loan_data[sapply(loan_data, function(x) !is.numeric(x))]
+loan_data <- cbind(numerci_loan, non_numeric_loan)
+
+# let us show the new overview plot
+overview <- overview(loan_data)
+plot(overview)
+```
+
+Now that looks better, cleaner and is simpler to understand.
 
 ### Categorical variables
 *How many numeric and how many categorical variables are included in the data? What categorical variable has the most levels in it?*
@@ -182,8 +199,39 @@ numeric_vars |>
 ### Dealing with outliers
 *Elaborate your view on how to proceed in dealing with the outliers and – if necessary, take appropriate action.*
 
+```{r}
+outlier <- function(x) {
+  quantiles <- quantile(x, c(.05, .95))
+  x[x < quantiles[1]] <- quantiles[1]
+  x[x > quantiles[2]] <- quantiles[2]
+  x
+}
+
+clean_loan_data <- map_df(loan_data[,-c(11:17)], outlier)
+cols <- loan_data[,c(11:17)]
+clean_loan_data <- cbind(clean_loan_data, cols)
+
+boxplot(scale(clean_loan_data[,c(1:10)]), use.cols = TRUE)
+```
+
 ## Distribution of numeric features in target
 *Choose the appropriate visualization to investigate the distribution of the numeric features per the two levels of our target feature (i.e. default vs non-default). Discuss the visualizations. Which variables seem relevant in predicting the target feature?*
+
+```{r}
+for (i in 1:length(clean_loan_data[,-c(11:17)])) {
+  print(
+    ggplot(clean_loan_data, aes(y = clean_loan_data[,i], color = Status)) +
+      geom_boxplot() +
+      ylab(names(clean_loan_data[i])) +
+      scale_color_manual(values = c('turquoise3', 'tomato'), labels = c("0 (Not Defaulted)", "1 (Defaulted)")) +
+      theme(
+        axis.title.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank()
+      )
+  )
+}
+```
 
 ## categorical variables and target
 *Use a bar plot visualization to investigate the associations between the categorical variables and the target feature.*
