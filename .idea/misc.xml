@@ -10,6 +10,13 @@
   <component name="RMarkdownSettings">
     <option name="renderProfiles">
       <map>
+        <entry key="file://$USER_HOME$/Downloads/Group Project SBD2 32a2627012967a87e7935e8da41bd7e488dba803cafa59c965234b844152935fe.Rmd">
+          <value>
+            <RMarkdownRenderProfile>
+              <option name="outputDirectoryUrl" value="file://$USER_HOME$/Downloads" />
+            </RMarkdownRenderProfile>
+          </value>
+        </entry>
         <entry key="file://$PROJECT_DIR$/group_7.rmd">
           <value>
             <RMarkdownRenderProfile>

@@ -12,7 +12,7 @@ output:
 
 ```{r include = FALSE, echo = FALSE}
 # Install libraries needed
-libraries <- c('readr', 'dlookr', 'dplyr', 'knitr', 'kableExtra', 'ggplot2', 'tidyr', 'purrr')
+libraries <- c('readr', 'dlookr', 'dplyr', 'knitr', 'kableExtra', 'ggplot2', 'tidyr', 'purrr', 'Boruta', 'ggcorrplot', 'plotly', 'ROSE', 'caret', 'DescTools', 'ROCR')
 
 lapply(libraries, function(x) if (!(x %in% installed.packages())) {
   install.packages(x)
@@ -236,14 +236,118 @@ for (i in 1:length(clean_loan_data[,-c(11:17)])) {
 ## categorical variables and target
 *Use a bar plot visualization to investigate the associations between the categorical variables and the target feature.*
 
+```{r}
+categorical_columns <- names(clean_loan_data)[12:16]
+
+for (cat_col in categorical_columns) {
+  print(
+    clean_loan_data |>
+      group_by({{cat_col}}, Status) |>
+      summarise(count = n()) |>
+      ggplot(aes(x = {{cat_col}}, y = count, fill = factor(Status))) +
+      geom_bar(stat = "identity", position = "dodge") +
+      labs(
+        title = paste("Association between", cat_col, "and Status"),
+        x = cat_col,
+        y = "Count"
+      ) +
+      scale_fill_manual(
+        values = c('turquoise3', 'tomato'),
+        labels = c("0 (Not Defaulted)", "1 (Defaulted)")
+      ) +
+      theme_minimal()
+  )
+}
+```
+
 ## Correlations
 *Visualize the correlations that emerge between the numerical features. Discuss the results. Which variables are highly correlated? Decide whether you keep all variables.*
+
+```{r}
+correlations <- cor(clean_loan_data[-c(11:17)])
+p_value_mat <- cor_pmat(clean_loan_data[,-c(11:17)])
+ggcorrplot(correlations, type = "lower", p.mat = p_value_mat)
+```
+
+To get a better understanding to decide whether to keep all variables or remove some,
+we also want to use the Boruta algorithm.
+
+Run the Boruta algo and print significant attributes:
+```{r}
+boruta_output <- Boruta(Status~., data = clean_loan_data)
+boruta_signif <- getSelectedAttributes(boruta_output, withTentative = TRUE)
+print(boruta_signif)
+```
+
+Visualize the results:
+```{r}
+plot(boruta_output, cex.axis=.7, las=2, xlab="", main="Variable Importance")
+```
+
+Based on the correlation plot and on the Boruta result, we do not see any variable to remove.
 
 ## Association between loan and income
 *Plot an interactive scatter plot of the association between the loan amount requested and the annual income of the borrower. Discuss the plot. What can you tell about the association?*
 
+```{r}
+ggplotly(
+  ggplot(clean_loan_data, aes(x = loan_amnt, y = annual_inc)) +
+    geom_point(
+      colour = "cornflowerblue",
+      alpha = 0.5
+    ) +
+    labs(
+      title = "Scatter Plot of Loan Amount vs. Annual Income (handeld outliers)",
+      x = "Loan Amount",
+      y = "Annual Income"
+    )
+)
+```
+
+It is hard to see a clear picture, but at least we can visually see a tendencies for a positive correlation.
+But maybe the same plot with the data including outliers can give us a better understanding,
+since in `clean_loan_data` we have [replaced the outliers](#dealing-with-outliers) with values from the quantiles
+(hence, the box like appearance).
+
+```{r}
+ggplotly(
+  ggplot(loan_data, aes(x = loan_amnt, y = annual_inc)) +
+    geom_point(
+      colour = "cornflowerblue",
+      alpha = 0.5
+    ) +
+    labs(
+      title = "Scatter Plot of Loan Amount vs. Annual Income (including outliers)",
+      x = "Loan Amount",
+      y = "Annual Income"
+    )
+)
+```
+
+Now here we can visually see the positive correlation even more.
+
+Both of them show us a mostly clear line of a maximum requested loan amount with a certain annual income.
+Also, the comparison between the one with handled outliers and the one with unhandled outliers raises a question
+if it was correct to remove the outliers for `loan_amnt` and `annual_inc`.
+We decided to keep them handled and revalidate it later.
+
 ## Create a new balanced data set
 *Create a new balanced data set where the two levels of the target variable will be equally represented; Create a bar plot of the newly created target variable. Why is this step necessary?*
+
+```{r}
+set.seed(7)
+data_balanced <- ovun.sample(Status ~ ., data=clean_loan_data, method = "under")
+balanced_loan_data <- data.frame(data_balanced[["data"]])
+
+ggplot(balanced_loan_data, aes(x = Status, fill = Status)) +
+  geom_bar() +
+  ylab("Count") +
+  xlab("Status of the loan") +
+  scale_fill_manual(values = c('skyblue', 'brown2'), labels = c("0 (Not Defaulted)", "1 (Defaulted)"))
+```
+
+This step was necessary to get a balanced dataset of our target variable to later train our prediction model.
+Before we had a very unbalanced dataset.
 
 ***
 
@@ -254,11 +358,57 @@ for (i in 1:length(clean_loan_data[,-c(11:17)])) {
 ### Divide the sample
 *Divide the sample into training and testing set using 70% for training the algorithm.*
 
+```{r}
+set.seed(7)
+div <- createDataPartition(y = balanced_loan_data$Status, p = 0.7, list = F)
+
+# Training Sample
+data.train <- balanced_loan_data[div,] # 70% here
+PercTable(data.train$Status)
+
+# Test Sample
+data.test <- balanced_loan_data[-div,] # rest of the 30% data goes here
+PercTable(data.test$Status)
+```
+
 ### Train the classifier
 *Train the classifier and report the coefficients obtained and interpret the results.*
 
+```{r}
+default_model_lr1 <- glm(Status~., data = data.train, family = binomial())
+
+summary(default_model_lr1)
+```
+We can clearly see which variables have a significant influence on the model and which not.
+
+This print shows us a short overview over the significant (with p-value lower than 0.05).
+
+```{r, echo=FALSE}
+significant.variables <- summary(fit1)$coeff[-1,4] < 0.05
+names(significant.variables)[significant.variables == TRUE]
+```
+
+We notice that 11 out of 17 are significant.
+We need to note,
+that in the class variables of `grade`, `home_ownership`, `purpose`, and `verification_status`
+only a some classes are considered significant:
+
+- *Grade:* B and C
+- *home_ownership:* RENT
+- *purpose:* small_business
+- *verification_status:* Source Verified
+
 ### Plot the ROC
 *Plot the ROC and the Precision/Recall Curve and interpret the results.*
+
+```{r}
+data.test$default_model_lr1_score <- predict(default_model_lr1, type='response', data.test)
+default_model_lr1_pred <- prediction(data.test$default_model_lr1_score, data.test$Status)
+default_model_lr1_roc <- performance(default_model_lr1_pred, "tpr", "fpr")
+
+plot(default_model_lr1_roc, lwd=1, colorize = TRUE, main = "default_model_lr1: Logit - ROC Curve")
+lines(x=c(0, 1), y=c(0, 1), col="black", lwd=1, lty=3)
+```
 
 ### Confusion matrix
 *Produce the confusion matrix and interpret the results.*
