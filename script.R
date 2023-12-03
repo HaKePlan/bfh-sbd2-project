@@ -273,9 +273,26 @@ names(significant.variables)[significant.variables == TRUE]
 # Plot the ROC
 # Plot the ROC and the Precision/Recall Curve and interpret the results.
 
+# TODO intepret the curves correct
 data.test$default_model_lr1_score <- predict(default_model_lr1, type='response', data.test)
 default_model_lr1_pred <- prediction(data.test$default_model_lr1_score, data.test$Status)
 default_model_lr1_roc <- performance(default_model_lr1_pred, "tpr", "fpr")
 
 plot(default_model_lr1_roc, lwd=1, colorize = TRUE, main = "default_model_lr1: Logit - ROC Curve")
 lines(x=c(0, 1), y=c(0, 1), col="black", lwd=1, lty=3)
+
+default_model_lr1_precision <- performance(default_model_lr1_pred, measure = "prec", x.measure = "rec")
+plot(default_model_lr1_precision, main="Fit1: Logit - Precision vs Recall")
+
+#########
+### Confusion matrix
+# Produce the confusion matrix and interpret the results.
+
+confusionMatrix(as.factor(round(data.test$default_model_lr1_score)), data.test$Status)
+
+#########
+# AUC values
+# Report the AUC values and the overall accuracy and interpret the results.
+
+default_model_lr1_auc <- performance(default_model_lr1_pred, measure = "auc")
+cat("AUC: ", default_model_lr1_auc@y.values[[1]]*100)

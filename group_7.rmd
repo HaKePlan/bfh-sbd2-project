@@ -393,10 +393,10 @@ We need to note,
 that in the class variables of `grade`, `home_ownership`, `purpose`, and `verification_status`
 only a some classes are considered significant:
 
-- *Grade:* B and C
-- *home_ownership:* RENT
-- *purpose:* small_business
-- *verification_status:* Source Verified
+- **Grade:** B and C
+- **home_ownership:** RENT
+- **purpose:** small_business
+- **verification_status:** Source Verified
 
 ### Plot the ROC
 *Plot the ROC and the Precision/Recall Curve and interpret the results.*
@@ -410,11 +410,39 @@ plot(default_model_lr1_roc, lwd=1, colorize = TRUE, main = "default_model_lr1: L
 lines(x=c(0, 1), y=c(0, 1), col="black", lwd=1, lty=3)
 ```
 
+The curve seems a bit flattened, and therefore the "Area under the curve" (AUC) small.
+At first sight, we think it is not ready for using it in production.
+
+```{r}
+default_model_lr1_precision <- performance(default_model_lr1_pred, measure = "prec", x.measure = "rec")
+plot(default_model_lr1_precision, main="Fit1: Logit - Precision vs Recall")
+```
+
 ### Confusion matrix
 *Produce the confusion matrix and interpret the results.*
 
+```{r, echo=FALSE}
+confusionMatrix(as.factor(round(data.test$default_model_lr1_score)), data.test$Status)
+```
+
+1. **Accuracy:** The model's overall accuracy is 63.71%, indicating that it correctly classifies about 63.71% of instances.
+2. **Sensitivity and Specificity:** Both sensitivity and specificity are similar, suggesting that the model performs reasonably well in predicting both positive and negative instances.
+3. **Precision and Negative Predictive Value:** Precision (positive predictive value) and negative predictive value are also quite balanced, indicating a reasonable trade-off between correctly identifying positive and negative instances.
+4. **Prevalence:** The dataset has a prevalence of 49.89%, indicating that the positive class is slightly underrepresented.
+5. **Kappa:** The Kappa value of 0.2741 suggests fair agreement beyond random chance. While it's not a high agreement, it's still indicative of some level of predictive power.
+
+In summary, the model shows a moderate level of performance, and further tuning or exploration may be needed.
+
 ### AUC values
 *Report the AUC values and the overall accuracy and interpret the results.*
+
+```{r, echo=FALSE}
+default_model_lr1_auc <- performance(default_model_lr1_pred, measure = "auc")
+cat("AUC: ", default_model_lr1_auc@y.values[[1]]*100)
+```
+
+As stated in the interpretation of [Confusion matrix](#confusion-matrix),
+the accuracy is not very high and indicates a moderate level of performance.
 
 ***
 
