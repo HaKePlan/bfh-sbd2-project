@@ -384,7 +384,7 @@ We can clearly see which variables have a significant influence on the model and
 This print shows us a short overview over the significant (with p-value lower than 0.05).
 
 ```{r, echo=FALSE}
-significant.variables <- summary(fit1)$coeff[-1,4] < 0.05
+significant.variables <- summary(default_model_lr1)$coeff[-1,4] < 0.05
 names(significant.variables)[significant.variables == TRUE]
 ```
 
