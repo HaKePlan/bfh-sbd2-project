@@ -214,6 +214,7 @@ The overview we got, indicated that we could remove the outliers with one or the
 
 The problematics with removing we saw in the loan amount and annual income.
 Both could be real values and not due to mistakes:
+
 - Loan Amount: There are 832 outlier observations. Which is about 2% of our data. The mean loan number of these outliers is around 29'822$ that is significantly higher than the non-outliers with 11'275$.
 - Annual Income: There are 1421 outlier observations. Which is about 3.55% of our data. The mean annual income of the outliers is three times as high as it is normal.
 
@@ -488,6 +489,7 @@ the accuracy is not very high and indicates a moderate level of performance.
 
 The company should come up with a clear governance process and guidelines to ensure the ethical side of this model.
 We like to highlight three important topics:
+
 - **Ethics of data**: The company should clarify how the privacy of our customers is respected. The data gathered for this model should not come from customer unwilling to share their (rather sensitive) personal data like e.g. annual income and loan purpose.
 - **Ethics of algorithms**: The algorithm and features used for this model should be checked to not contain discriminating biases.
 - **Ethics of practices**: Maybe a discussion about how transparent the decision process for giving a loan should happen.
