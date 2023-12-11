@@ -43,7 +43,16 @@ Check out on [GitHub](https://github.com/HaKePlan/bfh-sbd2-project)
 # TODO: wirte some intepretations?
 # we start with checking the dimension, structure, head and tail of our dataset
 dim(loan_data) # this shows us the demension of our dataset (40'000 Rows, 17 Cols)
+```
+### Dimension:
+- We can see that the dataset has 40'000 individual records and 17 different variables.
+
+```{r}
 str(loan_data) # structure of the dataset and its variables
+```
+### Structure:
+- In the structure of the dataset we can see, that it provides us with a well balanced set of variables, that all could be used in order to predict our target.
+```{r}
 head(loan_data)
 tail(loan_data)
 

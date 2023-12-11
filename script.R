@@ -13,7 +13,7 @@ library(DescTools)
 library(ROCR)
 
 # load dataset for later analysis
-data_improt <- read_csv('./loan_sample_7.csv')
+data_improt <- read_csv('C:/Users/LennyRuprecht/Downloads/loan_sample_7.csv')
 loan_data <- data_improt
 
 #########
@@ -97,7 +97,6 @@ ggplot(gathered_data, aes(x = Value, fill = Variable)) +
 #########
 # Checking for outliers
 # Investigate whether certain variables contain outliers (hint: what does a box plot show?).
-
 ggplot(gathered_data, aes(x = Value, fill = Variable)) +
   geom_boxplot() +
   facet_wrap(~ Variable, scales = "free") +
@@ -118,7 +117,17 @@ numeric_vars |> plot_outlier(diagnose_outlier(numeric_vars) |> filter(outliers_r
 # Elaborate your view on how to proceed in dealing with the outliers and – if necessary, take appropriate action.
 
 # TODO: define outliers as such, here we just assume all outliers as such but we did not verify and explain why
-# TODO: exclued loan amount and income form removing. this seems to be a bad idea?
+# TODO: exclude loan amount and income form removing. this seems to be a bad idea?
+## Lenny: Maybe its possible to cap loan amount and income, in order to minimize the influence of extreme values
+
+##Lenny: Don't exactly know what you want here, so here is my interpretation of the outliers
+### Loan Amount: There are 832 outlier observations. Which is about 2% of our data.
+###               The mean loan amount of these outliers is around 29'822$ which is significantly
+###               higher than the non-outliers with 11'275$.
+### Interest Rate: There are 732 outlier observations. Which is about 1.8% of our data.
+###               The mean interest rate is twice as big as it is without the outliers.
+### Annual Income: There are 1421 outlier observations. Which is about 3.55% of our data.
+###               The mean annaul income of the outliers is 3 times as high as it is normally
 outlier <- function(x) {
   quantiles <- quantile(x, c(.05, .95))
   x[x < quantiles[1]] <- quantiles[1]
@@ -141,6 +150,39 @@ boxplot(scale(clean_loan_data[,c(1:10)]), use.cols = TRUE)
 # Discuss the visualizations. Which variables seem relevant in predicting the target feature?
 
 # TODO: elaborate which variables seem relevant in predicting the target feature?
+## Lenny, not sure if it is correct what I'm doing :)
+
+
+# Insert this block after your TODO comment for analyzing variable importance
+
+# Regression model
+default_model_lr <- glm(Status ~ ., data = clean_loan_data, family = binomial())
+
+# Summary of the model to see coefficients and significance levels
+model_summary <- summary(default_model_lr)
+
+# Print the summary to view it
+print(model_summary)
+
+
+# Perform Boruta feature selection to find important variables
+set.seed(123) # for reproducibility
+boruta_output <- Boruta(Status~., data = clean_loan_data, doTrace = 0)
+print(boruta_output)
+
+# Get the names of important variables identified by Boruta
+boruta_signif <- getSelectedAttributes(boruta_output, withTentative = TRUE)
+print(boruta_signif)
+
+# Plot the importance of attributes
+plot(boruta_output, cex.axis=.7, las=2, xlab="", main="Variable Importance from Boruta")
+
+
+
+
+
+
+
 for (i in 1:length(clean_loan_data[,-c(11:17)])) {
   print(
     ggplot(clean_loan_data, aes(y = clean_loan_data[,i], color = Status)) +
