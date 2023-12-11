@@ -40,18 +40,19 @@ Check out on [GitHub](https://github.com/HaKePlan/bfh-sbd2-project)
 *Check and report the structure of the data set.*
 
 ```{r}
-# TODO: wirte some intepretations?
 # we start with checking the dimension, structure, head and tail of our dataset
 dim(loan_data) # this shows us the demension of our dataset (40'000 Rows, 17 Cols)
 ```
+
 ### Dimension:
-- We can see that the dataset has 40'000 individual records and 17 different variables.
+We can see that the dataset has 40'000 individual records and 17 different variables.
 
 ```{r}
 str(loan_data) # structure of the dataset and its variables
 ```
+
 ### Structure:
-- In the structure of the dataset we can see, that it provides us with a well balanced set of variables, that all could be used in order to predict our target.
+In the structure of the dataset, we can see that it provides us with a well-balanced set of variables that all could be used to predict our target.
 ```{r}
 head(loan_data)
 tail(loan_data)
@@ -207,6 +208,19 @@ numeric_vars |>
 
 ### Dealing with outliers
 *Elaborate your view on how to proceed in dealing with the outliers and – if necessary, take appropriate action.*
+
+To deal with the outliers, we first identify the difference of the data set with and without outliers.
+The overview we got, indicated that we could remove the outliers with one or the other method.
+
+The problematics with removing we saw in the loan amount and annual income.
+Both could be real values and not due to mistakes:
+- Loan Amount: There are 832 outlier observations. Which is about 2% of our data. The mean loan number of these outliers is around 29'822$ that is significantly higher than the non-outliers with 11'275$.
+- Annual Income: There are 1421 outlier observations. Which is about 3.55% of our data. The mean annual income of the outliers is three times as high as it is normal.
+
+In the end, we decided to remove them with the others, to minimize the influence of extreme values.
+Later, when the model is trained, we could consider this for eventual improvements (if this leads to some).
+
+To remove the outliers, we used the 'quantile-based flooring / capping' methode:
 
 ```{r}
 outlier <- function(x) {
@@ -461,6 +475,9 @@ the accuracy is not very high and indicates a moderate level of performance.
 ## Predictive performance
 *Can you think of a way to improve the predictive performance of your data? What can you do differently? (Hint: Feel free to be creative and discuss any additional step in data collection and/or data pre-processing that you might try so to improve the results)*
 
+- **Dealing with outliers**: As stated [before](#dealing-with-outliers), we could try to keep the data for loan amount and annual income with the outliers. Since this values may be extrem, the still seem to be reasonable and real.
+- **feature selection**: we could also try to remove the least significant features in the data set
+
 ***
 
 # Exercise 4
@@ -469,5 +486,18 @@ the accuracy is not very high and indicates a moderate level of performance.
 ## Challenges while using this model
 *What kind of challenges may a company face if it uses your model in their daily business, in particular in regard to ethical challenges and moral obligations companies have? Please refer to the "common ethical issues in the context the creation of value from data" (see slides week 11) in your answer.*
 
+The company should come up with a clear governance process and guidelines to ensure the ethical side of this model.
+We like to highlight three important topics:
+- **Ethics of data**: The company should clarify how the privacy of our customers is respected. The data gathered for this model should not come from customer unwilling to share their (rather sensitive) personal data like e.g. annual income and loan purpose.
+- **Ethics of algorithms**: The algorithm and features used for this model should be checked to not contain discriminating biases.
+- **Ethics of practices**: Maybe a discussion about how transparent the decision process for giving a loan should happen.
+
 ## Mitigate the issue
 *Can you think of a way how companies can overcome or at least mitigate the issues that you described above?*
+
+In our opinion, a clear data governance process (e.g "DGI - Data Governance Framework") could help the company to get an understanding of this topic.
+
+Furthermore, the company should get information over the local AI laws of the areas it is operating in.
+
+In the end, it also needs to find out how risky the trained model is,
+and what kind of law in the area of finance is existing.
